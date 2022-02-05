@@ -16,6 +16,11 @@ def read_float16(fd, num=1, en='<'):
     return res if num > 1 else res[0]
 
 
+def read_int32(fd, num=1, en='<'):
+    res = struct.unpack('%s%di' % (en, num), fd.read(4 * num))
+    return res if num > 1 else res[0]
+
+
 def read_uint32(fd, num=1, en='<'):
     res = struct.unpack('%s%dI' % (en, num), fd.read(4 * num))
     return res if num > 1 else res[0]

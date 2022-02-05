@@ -58,8 +58,6 @@ def attach_bon(context, arm_obj, bon: Bon):
         nodes_map[b.tag] = node_objects[i]
 
     for b in bon.bones:
-        bone_name = tags_map[b.tag].name
-
         node_obj = nodes_map[b.tag]
         node_obj.matrix_local = trans_matrix(b.pos) @ rotate_matrix(b.rot) @ scale_matrix(b.scale)
         if b.parent:
@@ -70,8 +68,10 @@ def attach_bon(context, arm_obj, bon: Bon):
         collection.objects.link(node_obj)
         node_obj.show_in_front = True
 
-        c = arm_obj.pose.bones[bone_name].constraints.new('COPY_TRANSFORMS')
-        c.target = node_obj
+        bone = tags_map.get(b.tag)
+        if bone:
+            c = arm_obj.pose.bones[bone.name].constraints.new('COPY_TRANSFORMS')
+            c.target = node_obj
 
     return root_obj
 

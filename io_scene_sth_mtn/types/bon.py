@@ -25,7 +25,7 @@ class Bone:
     @classmethod
     def read(cls, fd, endian):
         offset = fd.tell()
-        tag = read_uint32(fd, 1, endian)
+        tag = read_int32(fd, 1, endian)
         flag = read_uint16(fd, 1, endian)
         fd.seek(0x4, SEEK_CUR)
         split_id, param_id = read_uint8(fd, 2)

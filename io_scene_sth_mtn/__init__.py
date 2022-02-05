@@ -11,7 +11,7 @@ from bpy_extras.io_utils import (
 bl_info = {
     "name": "Shadow the Hedgehog Animation",
     "author": "Psycrow",
-    "version": (0, 0, 1),
+    "version": (0, 0, 2),
     "blender": (2, 81, 0),
     "location": "File > Import-Export",
     "description": "Import / Export Shadow the Hedgehog Animation (.bon, .mtn, .STHanim)",

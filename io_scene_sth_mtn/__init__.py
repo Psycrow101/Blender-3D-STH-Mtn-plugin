@@ -11,7 +11,7 @@ from bpy_extras.io_utils import (
 bl_info = {
     "name": "Shadow the Hedgehog Animation",
     "author": "Psycrow",
-    "version": (0, 0, 2),
+    "version": (0, 0, 3),
     "blender": (2, 81, 0),
     "location": "File > Import-Export",
     "description": "Import / Export Shadow the Hedgehog Animation (.bon, .mtn, .STHanim)",
@@ -55,6 +55,12 @@ class ImportSTHMtn(bpy.types.Operator, ImportHelper):
 
     filter_glob: StringProperty(default="*.mtn;*.STHanim", options={'HIDDEN'})
     filename_ext = ".mtn"
+
+    bake_action: BoolProperty(
+        name="Bake action",
+        description="Bake animation to an armature",
+        default=True,
+    )
 
     def execute(self, context):
         from . import import_sth_mtn

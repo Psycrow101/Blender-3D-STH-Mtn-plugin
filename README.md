@@ -11,6 +11,9 @@ Poorly tested and made just for fun. Keyframes are created on empty objects that
 4. Make _bon_root_ object active
 5. Imort MTN animation
 
+## Animation editing
+If you want to make changes to export to MTN, you need to manipulate only the created objects from the BON collection. In other cases, you can remove the entire BON collection hierarchy and work directly on the armature bones. Make sure the "Bake action" option was enabled when importing so that the keyframes are applied to the armature bones.
+
 ## Requirements
 
 * Blender 3D (2.81 and higher)

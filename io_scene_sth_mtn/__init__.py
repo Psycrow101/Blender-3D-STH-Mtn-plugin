@@ -11,7 +11,7 @@ from bpy_extras.io_utils import (
 bl_info = {
     "name": "Shadow the Hedgehog Animation",
     "author": "Psycrow",
-    "version": (0, 0, 3),
+    "version": (0, 0, 4),
     "blender": (2, 81, 0),
     "location": "File > Import-Export",
     "description": "Import / Export Shadow the Hedgehog Animation (.bon, .mtn, .STHanim)",
@@ -38,6 +38,12 @@ class ImportSTHBon(bpy.types.Operator, ImportHelper):
 
     filter_glob: StringProperty(default="*.bon", options={'HIDDEN'})
     filename_ext = ".bon"
+
+    apply_bone_names: BoolProperty(
+        name="Apply bone names",
+        description="Apply bone names to an armature",
+        default=True,
+    )
 
     def execute(self, context):
         from . import import_sth_bon

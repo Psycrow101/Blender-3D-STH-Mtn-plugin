@@ -35,8 +35,7 @@ def find_bon_nodes(root_obj):
     return node_objects
 
 
-def attach_bon(context, arm_obj, bon: Bon):
-    view_layer = context.view_layer
+def attach_bon(context, arm_obj, bon: Bon, apply_bone_names):
     collection = bpy.data.collections.new(bon.model_name + '.bon')
     context.scene.collection.children.link(collection)
 
@@ -50,6 +49,8 @@ def attach_bon(context, arm_obj, bon: Bon):
         for bone in arm_obj.data.bones:
              if bone['bone_id'] == b.tag:
                 tags_map[b.tag] = bone
+                if apply_bone_names:
+                    bone.name = b.name
                 break
 
     node_objects = [bpy.data.objects.new(b.name, None) for b in bon.bones]
@@ -76,7 +77,7 @@ def attach_bon(context, arm_obj, bon: Bon):
     return root_obj
 
 
-def load(context, filepath):
+def load(context, filepath, *, apply_bone_names):
     arm_obj = context.view_layer.objects.active
     if not arm_obj or type(arm_obj.data) != bpy.types.Armature:
         context.window_manager.popup_menu(invalid_active_object, title='Error', icon='ERROR')
@@ -86,7 +87,7 @@ def load(context, filepath):
     bon.find_bone_parents()
 
     bpy.ops.object.mode_set(mode='OBJECT')
-    root_obj = attach_bon(context, arm_obj, bon)
+    root_obj = attach_bon(context, arm_obj, bon, apply_bone_names)
     root_obj['bon_model_name'] = bon.model_name
     context.view_layer.objects.active = root_obj
 

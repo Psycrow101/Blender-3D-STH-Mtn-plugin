@@ -111,7 +111,7 @@ def create_mtn_action(root_obj, mtn: Mtn):
     return act
 
 
-def load(context, filepath, *, bake_action):
+def load(context, filepath, bake_action):
     root_obj = context.view_layer.objects.active
     if not root_obj or type(root_obj.data) != bpy.types.Armature or 'bon_model_name' not in root_obj:
         context.window_manager.popup_menu(invalid_active_object, title='Error', icon='ERROR')
@@ -133,7 +133,7 @@ def load(context, filepath, *, bake_action):
     if bake_action:
         arm_obj = root_obj.parent
         act = create_baked_action(context, arm_obj)
-        act.name = filename
+        act.name = 'baked_' + filename
         arm_obj.animation_data_create().action = act
 
 

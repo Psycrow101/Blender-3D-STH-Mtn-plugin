@@ -2,7 +2,7 @@
 
 This plugin for Blender 3D allows you to import and export animations (`.mtn` or `.STHanim`) for Shadow the Hedgehog. Based on [Shadow-the-Hedgehog-.BON-MTN-import-export-tool](https://github.com/Shadowth117/Shadow-the-Hedgehog-.BON-MTN-import-export-tool).
 
-Poorly tested and made just for fun. Keyframes are created on empty objects that transform the pose bones (it is not comfortable).
+Poorly tested and made just for fun. Keyframes are created in a separate armature after BON import. This is done to make animation import more accurate and and allow game-like scaling using constraints and drivers.
 
 ## How to import animation
 1. Import DFF model into Blender

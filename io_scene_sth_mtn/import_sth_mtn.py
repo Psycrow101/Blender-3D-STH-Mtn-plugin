@@ -1,8 +1,8 @@
 import bpy
 import math
+from mathutils import Vector
 from os import path
 from . types.mtn import Mtn
-from . import_sth_bon import find_bon_nodes
 
 POSEDATA_PREFIX = 'pose.bones["%s"].'
 
@@ -18,7 +18,7 @@ def add_pose_keyframe(curves, frame, values):
         c.keyframe_points[-1].interpolation = 'LINEAR'
 
 
-def add_node_keyframe(curve, frame, val, tangent):
+def add_mtn_keyframe(curve, frame, val, tangent):
     curve.keyframe_points.add(1)
     kf = curve.keyframe_points[-1]
 
@@ -33,6 +33,7 @@ def add_node_keyframe(curve, frame, val, tangent):
     kf.handle_right = frame + handle_x, val + handle_y
 
 
+# TODO: socket scale
 def create_baked_action(context, arm_obj):
     act = bpy.data.actions.new('baked_action')
     curves = ([], [], [])
@@ -85,39 +86,49 @@ def create_baked_action(context, arm_obj):
     return act
 
 
-def create_node_actions(mtn: Mtn):
-    actions = {}
-    for m in mtn.bone_motions:
-        act = bpy.data.actions.new('action')
-        curves = [act.fcurves.new(data_path='scale', index=i) for i in range(3)]
-        curves += [act.fcurves.new(data_path='location', index=i) for i in range(3)]
-        curves += [act.fcurves.new(data_path='rotation_euler', index=i) for i in range(3)]
-        curves += [act.fcurves.new(data_path='scale_w', index=i) for i in range(3)]
+def create_mtn_action(root_obj, mtn: Mtn):
+    act = bpy.data.actions.new('action')
 
-        for kf in m.keyframes:
-            add_node_keyframe(curves[kf.key_type], kf.time, kf.val2, kf.val1)
+    pose_bones = [bone for bone in root_obj.pose.bones if 'bon_rest' in bone]
 
-        actions[m.bone_id] = act
+    for b, bone in enumerate(pose_bones):
+        bone.rotation_mode = 'XYZ'
+        bone['Bon Scale'] = Vector((1.0, 1.0, 1.0))
+        bone.matrix = bone['bon_rest'].copy()
 
-    return actions
+        curves = [act.fcurves.new(data_path=(POSEDATA_PREFIX % bone.name) + '["Bon Scale"]', index=i) for i in range(3)]
+        curves += [act.fcurves.new(data_path=(POSEDATA_PREFIX % bone.name) + 'location', index=i) for i in range(3)]
+        curves += [act.fcurves.new(data_path=(POSEDATA_PREFIX % bone.name) + 'rotation_euler', index=i) for i in range(3)]
+        curves += [act.fcurves.new(data_path=(POSEDATA_PREFIX % bone.name) + 'scale', index=i) for i in range(3)]
+
+        group = act.groups.new(name=bone.name)
+        for c in curves:
+            c.group = group
+
+        for kf in mtn.bone_motions[b].keyframes:
+            add_mtn_keyframe(curves[kf.key_type], kf.time, kf.val2, kf.val1)
+
+    return act
 
 
 def load(context, filepath, *, bake_action):
     root_obj = context.view_layer.objects.active
-    if not root_obj or root_obj.get('bon_model_name') is None:
+    if not root_obj or type(root_obj.data) != bpy.types.Armature or 'bon_model_name' not in root_obj:
         context.window_manager.popup_menu(invalid_active_object, title='Error', icon='ERROR')
         return {'CANCELLED'}
 
+    animation_data = root_obj.animation_data
+    if not animation_data:
+        animation_data = root_obj.animation_data_create()
+
     filename = path.basename(filepath)
     mtn = Mtn.load(filepath)
-    node_objects = find_bon_nodes(root_obj)
-    node_actions = create_node_actions(mtn)
+    act = create_mtn_action(root_obj, mtn)
+    act.name = filename
+    animation_data.action = act
+
     context.scene.frame_start = 0
     context.scene.frame_end = mtn.duration
-
-    for bone_id, act in node_actions.items():
-        act.name = '%s_NODE_%d' % (filename, bone_id)
-        node_objects[bone_id].animation_data_create().action = act
 
     if bake_action:
         arm_obj = root_obj.parent

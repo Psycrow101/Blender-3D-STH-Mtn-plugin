@@ -95,20 +95,20 @@ def attach_bon(context, arm_obj, bon: Bon, apply_bone_names):
         if b.parent:
             socket_name = node_name + '_socket'
             create_edit_bone(root_arm, socket_name)
-        names_map[b.tag] = (node_name, socket_name)
+        names_map[b.name] = (node_name, socket_name)
 
     # Set parents
     for b in bon.bones:
         if not b.parent:
             continue
 
-        node_name, socket_name = names_map[b.tag]
+        node_name, socket_name = names_map[b.name]
         edit_node = root_arm.edit_bones[node_name]
         socket_node = root_arm.edit_bones[socket_name]
 
         edit_node.parent = socket_node
 
-        parent_name = names_map[b.parent.tag][1]
+        parent_name = names_map[b.parent.name][1]
         if parent_name is not None:
             socket_node.parent = root_arm.edit_bones[parent_name]
 
@@ -116,7 +116,7 @@ def attach_bon(context, arm_obj, bon: Bon, apply_bone_names):
 
     # Set rest pose and drivers
     for b in bon.bones:
-        node_name, socket_name = names_map[b.tag]
+        node_name, socket_name = names_map[b.name]
 
         pose_node = root_obj.pose.bones[node_name]
         pose_node.rotation_mode = 'XYZ'
@@ -139,7 +139,7 @@ def attach_bon(context, arm_obj, bon: Bon, apply_bone_names):
                 socket_node.lock_location[i] = True
                 socket_node.lock_rotation[i] = True
 
-            target_name = names_map[b.parent.tag][0]
+            target_name = names_map[b.parent.name][0]
 
             create_constraint('COPY_LOCATION', socket_node, root_obj, target_name)
             create_constraint('COPY_ROTATION', socket_node, root_obj, target_name)

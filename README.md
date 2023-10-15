@@ -14,7 +14,14 @@ Poorly tested and made just for fun. Keyframes are created in a separate armatur
 ## Animation editing
 If you want to make changes to export to MTN, you need to manipulate only the created objects from the BON collection. In other cases, you can remove the entire BON collection hierarchy and work directly on the armature bones. Make sure the "Bake action" option was enabled when importing so that the keyframes are applied to the armature bones.
 
+## Known Issues
+* Incorrect keyframe interpolation for some animations
+* Inaccurate scaling of bones in baked animation when importing
+
+## TODO:
+* Export BON skeleton
+
 ## Requirements
 
 * Blender 3D (2.81 and higher)
-* [DragonFF](https://github.com/Parik27/DragonFF)
+* [DragonFF](https://github.com/Parik27/DragonFF) or [DragonFF multi-mesh support](https://github.com/Psycrow101/DragonFF/tree/multi-mesh)

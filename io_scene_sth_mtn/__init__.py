@@ -13,7 +13,7 @@ from pathlib import Path
 bl_info = {
     "name": "Shadow the Hedgehog Animation",
     "author": "Psycrow",
-    "version": (0, 1, 0),
+    "version": (0, 1, 1),
     "blender": (2, 81, 0),
     "location": "File > Import-Export",
     "description": "Import / Export Shadow the Hedgehog Animation (.bon, .mtn, .STHanim)",

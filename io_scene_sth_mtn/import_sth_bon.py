@@ -83,6 +83,12 @@ def attach_bon(context, arm_obj, bon: Bon, apply_bone_names):
     root_obj.show_in_front = True
     collection.objects.link(root_obj)
 
+    # Do not export via DragonFF
+    try:
+        root_obj.dff.type = 'NON'
+    except AttributeError:
+        pass
+
     # Create edit bones
     context.view_layer.objects.active = root_obj
     bpy.ops.object.mode_set(mode='EDIT', toggle=False)

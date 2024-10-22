@@ -8,22 +8,37 @@ from . binary_utils import *
 class Keyframe:
     time: int
     key_type: int
-    val1: float
-    val2: float
+    tan_type: int
+    tan1: float
+    tan2: float
+    val: float
 
     @classmethod
     def read(cls, fd, endian, key_type):
-        time = read_uint16(fd, 1, endian) - 0xc000
-        val1, val2 = read_float16(fd, 2, endian)
+        v = read_uint16(fd, 1, endian)
+        tan_type = v >> 14
+        time = v & 0x3fff
+
+        if tan_type > 1:
+            tan1, val = read_float16(fd, 2, endian)
+            tan2 = 0.0
+        else:
+            tan1, tan2, val = read_float16(fd, 3, endian)
+
         return cls(time=time,
             key_type=key_type,
-            val1=val1,
-            val2=val2)
+            tan_type=tan_type,
+            tan1=tan1,
+            tan2=tan2,
+            val=val)
 
 
     def write(self, fd, endian):
-        write_uint16(fd, self.time + 0xc000, endian)
-        write_float16(fd, (self.val1, self.val2), endian)
+        write_uint16(fd, (self.time & 0x3fff) | (self.tan_type << 14), endian)
+        if self.tan_type > 1:
+            write_float16(fd, (self.tan1, self.val), endian)
+        else:
+            write_float16(fd, (self.tan1, self.tan2, self.val), endian)
 
 
 @dataclass
@@ -96,7 +111,9 @@ class Mtn:
                 if not keyframes_num:
                     continue
 
-                struct_len = 8 + keyframes_num * 6
+                struct_len = 8
+                for kf in keyframes:
+                    struct_len += 6 if kf.tan_type > 1 else 8
                 padding = struct_len % 4
                 struct_len += padding
 

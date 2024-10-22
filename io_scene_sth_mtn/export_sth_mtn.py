@@ -43,15 +43,37 @@ def create_mtn(arm_obj, act, model_name):
             if key_type is None:
                 continue
 
-            for kp in curve.keyframe_points:
-                time, val2 = kp.co
-                if kp.interpolation != 'BEZIER':
-                    val1 = 0.0
-                else:
-                    angle = math.asin(kp.handle_right[1] - val2)
-                    val1 = math.tan(angle)
+            for idx, kp in enumerate(curve.keyframe_points):
+                time, val = kp.co
 
-                keyframes.append(Keyframe(int(time), key_type + curve.array_index, val1, val2))
+                if kp.interpolation != 'BEZIER':
+                    tan1 = tan2 = 0.0
+                else:
+                    angle = math.asin(kp.handle_right[1] - val)
+                    tan1 = math.tan(angle)
+                    if kp.handle_left_type == 'FREE':
+                        angle = math.asin(val - kp.handle_left[1])
+                        tan2 = math.tan(angle)
+                    else:
+                        tan2 = 0.0
+
+                if idx > 0:
+                    tan_type = 3 if tan2 == 0.0 else 1
+                    if prev_tan_type < 2:
+                        tan_type -= 1
+                else:
+                    tan_type = 3
+
+                prev_tan_type = tan_type
+
+                kf = Keyframe(
+                    time=int(time),
+                    key_type=key_type + curve.array_index,
+                    tan_type=tan_type,
+                    tan1=tan1,
+                    tan2=tan2,
+                    val=val)
+                keyframes.append(kf)
 
         keyframes.sort(key=lambda kf: (kf.key_type, kf.time))
         bone_motions.append(BoneMotion(b, keyframes))

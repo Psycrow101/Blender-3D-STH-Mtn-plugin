@@ -18,19 +18,27 @@ def add_pose_keyframe(curves, frame, values):
         c.keyframe_points[-1].interpolation = 'LINEAR'
 
 
-def add_mtn_keyframe(curve, frame, val, tangent):
+def add_mtn_keyframe(curve, frame, val, tan1, tan2):
     curve.keyframe_points.add(1)
     kf = curve.keyframe_points[-1]
-
-    angle = math.atan(tangent)
-    handle_x, handle_y = math.cos(angle), math.sin(angle)
-
     kf.co = frame, val
     kf.interpolation = 'BEZIER'
-    kf.handle_left_type = 'ALIGNED'
-    kf.handle_right_type = 'ALIGNED'
-    kf.handle_left = frame - handle_x, val - handle_y
-    kf.handle_right = frame + handle_x, val + handle_y
+
+    angle = math.atan(tan1)
+    handle_l_x, handle_l_y = math.cos(angle), math.sin(angle)
+
+    if tan2 is None:
+        kf.handle_left_type = 'ALIGNED'
+        kf.handle_right_type = 'ALIGNED'
+        handle_r_x, handle_r_y = handle_l_x, handle_l_y
+    else:
+        kf.handle_left_type = 'FREE'
+        kf.handle_right_type = 'FREE'
+        angle = math.atan(tan2)
+        handle_r_x, handle_r_y = math.cos(angle), math.sin(angle)
+
+    kf.handle_left = frame - handle_l_x, val - handle_l_y
+    kf.handle_right = frame + handle_r_x, val + handle_r_y
 
 
 # TODO: socket scale
@@ -106,7 +114,8 @@ def create_mtn_action(root_obj, mtn: Mtn):
             c.group = group
 
         for kf in mtn.bone_motions[b].keyframes:
-            add_mtn_keyframe(curves[kf.key_type], kf.time, kf.val2, kf.val1)
+            tan2 = kf.tan2 if kf.tan_type < 2 else None
+            add_mtn_keyframe(curves[kf.key_type], kf.time, kf.val, kf.tan1, tan2)
 
     return act
 

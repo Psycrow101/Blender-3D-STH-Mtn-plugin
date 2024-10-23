@@ -99,7 +99,7 @@ def create_mtn_action(root_obj, mtn: Mtn):
 
     pose_bones = [bone for bone in root_obj.pose.bones if 'bon_rest' in bone]
 
-    for b, bone in enumerate(pose_bones):
+    for b, bone in enumerate(pose_bones[:len(mtn.bone_motions)]):
         bone.rotation_mode = 'XYZ'
         bone['Bon Scale'] = Vector((1.0, 1.0, 1.0))
         bone.matrix = bone['bon_rest'].copy()

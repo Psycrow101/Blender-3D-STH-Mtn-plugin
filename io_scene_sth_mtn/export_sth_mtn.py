@@ -1,5 +1,6 @@
 import bpy
 import math
+from bpy_extras import anim_utils
 from . types.mtn import Mtn, BoneMotion, Keyframe
 
 POSEDATA_PREFIX = 'pose.bones["%s"].'
@@ -17,7 +18,15 @@ def create_mtn(arm_obj, act, model_name):
     pose_bones = [bone for bone in arm_obj.pose.bones if 'bon_rest' in bone]
     curves_map = {bone.name: [] for bone in pose_bones}
 
-    for curve in act.fcurves:
+    if bpy.app.version < (4, 4, 0):
+        action_fcurves = act.fcurves
+
+    else:
+        slot = arm_obj.animation_data.action_slot
+        channelbag = anim_utils.action_get_channelbag_for_slot(act, slot)
+        action_fcurves = channelbag.fcurves
+
+    for curve in action_fcurves:
         if 'pose.bones' not in curve.data_path:
             continue
 

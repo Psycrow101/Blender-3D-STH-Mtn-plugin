@@ -46,11 +46,25 @@ def create_baked_action(context, arm_obj):
     act = bpy.data.actions.new('baked_action')
     curves = ([], [], [])
 
+    if bpy.app.version < (4, 4, 0):
+        action_fcurves = act.fcurves
+        action_groups = act.groups
+
+    else:
+        slot = act.slots.new(id_type='OBJECT', name='MTN')
+
+        layer = act.layers.new('Layer')
+        strip = layer.strips.new(type='KEYFRAME')
+        channelbag = strip.channelbag(slot, ensure=True)
+
+        action_fcurves = channelbag.fcurves
+        action_groups = channelbag.groups
+
     for bone in arm_obj.pose.bones:
-        g = act.groups.new(name=bone.name)
-        cl = [act.fcurves.new(data_path=(POSEDATA_PREFIX % bone.name) + 'location', index=i) for i in range(3)]
-        cr = [act.fcurves.new(data_path=(POSEDATA_PREFIX % bone.name) + 'rotation_quaternion', index=i) for i in range(4)]
-        cs = [act.fcurves.new(data_path=(POSEDATA_PREFIX % bone.name) + 'scale', index=i) for i in range(3)]
+        g = action_groups.new(name=bone.name)
+        cl = [action_fcurves.new(data_path=(POSEDATA_PREFIX % bone.name) + 'location', index=i) for i in range(3)]
+        cr = [action_fcurves.new(data_path=(POSEDATA_PREFIX % bone.name) + 'rotation_quaternion', index=i) for i in range(4)]
+        cs = [action_fcurves.new(data_path=(POSEDATA_PREFIX % bone.name) + 'scale', index=i) for i in range(3)]
 
         for c in cl:
             c.group = g
@@ -97,6 +111,20 @@ def create_baked_action(context, arm_obj):
 def create_mtn_action(root_obj, mtn: Mtn):
     act = bpy.data.actions.new('action')
 
+    if bpy.app.version < (4, 4, 0):
+        action_fcurves = act.fcurves
+        action_groups = act.groups
+
+    else:
+        slot = act.slots.new(id_type='OBJECT', name='MTN')
+
+        layer = act.layers.new('Layer')
+        strip = layer.strips.new(type='KEYFRAME')
+        channelbag = strip.channelbag(slot, ensure=True)
+
+        action_fcurves = channelbag.fcurves
+        action_groups = channelbag.groups
+
     pose_bones = [bone for bone in root_obj.pose.bones if 'bon_rest' in bone]
 
     for b, bone in enumerate(pose_bones[:len(mtn.bone_motions)]):
@@ -104,12 +132,12 @@ def create_mtn_action(root_obj, mtn: Mtn):
         bone['Bon Scale'] = Vector((1.0, 1.0, 1.0))
         bone.matrix = bone['bon_rest'].copy()
 
-        curves = [act.fcurves.new(data_path=(POSEDATA_PREFIX % bone.name) + '["Bon Scale"]', index=i) for i in range(3)]
-        curves += [act.fcurves.new(data_path=(POSEDATA_PREFIX % bone.name) + 'location', index=i) for i in range(3)]
-        curves += [act.fcurves.new(data_path=(POSEDATA_PREFIX % bone.name) + 'rotation_euler', index=i) for i in range(3)]
-        curves += [act.fcurves.new(data_path=(POSEDATA_PREFIX % bone.name) + 'scale', index=i) for i in range(3)]
+        curves = [action_fcurves.new(data_path=(POSEDATA_PREFIX % bone.name) + '["Bon Scale"]', index=i) for i in range(3)]
+        curves += [action_fcurves.new(data_path=(POSEDATA_PREFIX % bone.name) + 'location', index=i) for i in range(3)]
+        curves += [action_fcurves.new(data_path=(POSEDATA_PREFIX % bone.name) + 'rotation_euler', index=i) for i in range(3)]
+        curves += [action_fcurves.new(data_path=(POSEDATA_PREFIX % bone.name) + 'scale', index=i) for i in range(3)]
 
-        group = act.groups.new(name=bone.name)
+        group = action_groups.new(name=bone.name)
         for c in curves:
             c.group = group
 
@@ -136,6 +164,9 @@ def load(context, filepath, bake_action):
     act.name = filename
     animation_data.action = act
 
+    if bpy.app.version >= (4, 4, 0):
+        animation_data.action_slot = act.slots[-1]
+
     context.scene.frame_start = 0
     context.scene.frame_end = mtn.duration
 
@@ -144,6 +175,9 @@ def load(context, filepath, bake_action):
         act = create_baked_action(context, arm_obj)
         act.name = 'baked_' + filename
         arm_obj.animation_data_create().action = act
+
+        if bpy.app.version >= (4, 4, 0):
+            arm_obj.animation_data.action_slot = act.slots[-1]
 
 
     return {'FINISHED'}

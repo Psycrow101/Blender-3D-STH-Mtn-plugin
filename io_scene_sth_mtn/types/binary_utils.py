@@ -60,8 +60,16 @@ def write_float16(fd, vals, en='<'):
     _write_val(fd, vals, 'e', en)
 
 
+def write_int32(fd, vals, en='<'):
+    _write_val(fd, vals, 'i', en)
+
+
 def write_uint32(fd, vals, en='<'):
     _write_val(fd, vals, 'I', en)
+
+
+def write_float32(fd, vals, en='<'):
+    _write_val(fd, vals, 'f', en)
 
 
 def write_string(fd, val, strlen=0):

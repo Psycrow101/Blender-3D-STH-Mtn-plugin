@@ -24,4 +24,4 @@ If you want to make changes to export to MTN, you need to manipulate only the cr
 ## Requirements
 
 * Blender 3D (2.81 and higher)
-* [DragonFF](https://github.com/Parik27/DragonFF) or [DragonFF multi-mesh support](https://github.com/Psycrow101/DragonFF/tree/multi-mesh)
+* [DragonFF](https://github.com/Parik27/DragonFF)

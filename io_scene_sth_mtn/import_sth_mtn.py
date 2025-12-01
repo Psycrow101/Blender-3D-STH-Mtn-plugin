@@ -1,6 +1,6 @@
 import bpy
 import math
-from mathutils import Vector
+from mathutils import Matrix, Vector
 from os import path
 from . types.mtn import Mtn
 
@@ -9,6 +9,15 @@ POSEDATA_PREFIX = 'pose.bones["%s"].'
 
 def invalid_active_object(self, context):
     self.layout.label(text='You need to select the bon_root object to import animation')
+
+
+def get_bon_rest(pose_bone):
+    bon_rest = pose_bone['Bon Rest']
+
+    if bpy.app.version < (5, 0, 0):
+        return bon_rest.copy()
+
+    return Matrix([bon_rest[i*4:(i+1)*4] for i in range(4)])
 
 
 def add_pose_keyframe(curves, frame, values):
@@ -125,12 +134,12 @@ def create_mtn_action(root_obj, mtn: Mtn):
         action_fcurves = channelbag.fcurves
         action_groups = channelbag.groups
 
-    pose_bones = [bone for bone in root_obj.pose.bones if 'bon_rest' in bone]
+    pose_bones = [bone for bone in root_obj.pose.bones if 'Bon Rest' in bone]
 
     for b, bone in enumerate(pose_bones[:len(mtn.bone_motions)]):
         bone.rotation_mode = 'XYZ'
         bone['Bon Scale'] = Vector((1.0, 1.0, 1.0))
-        bone.matrix = bone['bon_rest'].copy()
+        bone.matrix = get_bon_rest(bone)
 
         curves = [action_fcurves.new(data_path=(POSEDATA_PREFIX % bone.name) + '["Bon Scale"]', index=i) for i in range(3)]
         curves += [action_fcurves.new(data_path=(POSEDATA_PREFIX % bone.name) + 'location', index=i) for i in range(3)]

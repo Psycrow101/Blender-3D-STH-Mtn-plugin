@@ -15,7 +15,7 @@ def missing_action(self, context):
 
 
 def create_mtn(arm_obj, act, model_name):
-    pose_bones = [bone for bone in arm_obj.pose.bones if 'bon_rest' in bone]
+    pose_bones = [bone for bone in arm_obj.pose.bones if 'Bon Rest' in bone]
     curves_map = {bone.name: [] for bone in pose_bones}
 
     if bpy.app.version < (4, 4, 0):

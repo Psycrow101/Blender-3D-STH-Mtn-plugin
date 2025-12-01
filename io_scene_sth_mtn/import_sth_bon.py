@@ -133,7 +133,7 @@ def attach_bon(context, arm_obj, bon: Bon, apply_bone_names):
 
         pose_node.matrix = matrix
         pose_node['Bon Scale'] = Vector((1.0, 1.0, 1.0))
-        pose_node['bon_rest'] = matrix.copy()
+        pose_node['Bon Rest'] = matrix.copy()
 
         if socket_name is not None:
             root_obj.data.bones[socket_name].hide = True
